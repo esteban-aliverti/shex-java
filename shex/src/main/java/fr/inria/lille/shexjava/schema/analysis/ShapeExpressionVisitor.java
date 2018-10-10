@@ -19,6 +19,7 @@ package fr.inria.lille.shexjava.schema.analysis;
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeEachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
@@ -47,6 +48,12 @@ public abstract class ShapeExpressionVisitor<ResultType> {
 		}
 	}
 	
+	public void visitShapeEachOf(ShapeEachOf expr, Object[] arguments) {
+		for (ShapeExpr subExpr: expr.getSubExpressions()) {
+			subExpr.accept(this, arguments);
+		}
+	}
+	
 	public void visitShapeNot (ShapeNot expr, Object ...arguments) {
 		expr.getSubExpression().accept(this, arguments);
 	}
@@ -57,5 +64,7 @@ public abstract class ShapeExpressionVisitor<ResultType> {
 	public void visitShapeExternal (ShapeExternal shapeExt, Object[] arguments) {
 		throw new UnsupportedOperationException("not yet implemented");
 	}
+
+	
 	
 }

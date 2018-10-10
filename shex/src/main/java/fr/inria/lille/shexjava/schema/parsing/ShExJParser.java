@@ -48,6 +48,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeEachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
@@ -185,6 +186,9 @@ public class ShExJParser implements Parser{
 		case "ShapeAnd":
 			resultExpr = parseShapeAnd(exprMap);
 			break;
+		case "ShapeEachOf":
+			resultExpr = parseShapeEachOf(exprMap);
+			break;
 		case "ShapeNot":
 			resultExpr = parseShapeNot(exprMap);
 			break;
@@ -200,30 +204,39 @@ public class ShExJParser implements Parser{
 
 		return resultExpr;
 	}
-
-	// ShapeOr 	{ 	id:Label? shapeExprs:[shapeExpr] }
-	protected ShapeExpr parseShapeOr (Map map) {
+	
+	// ShapeAnd 	{ 	id:Label? shapeExprs:[shapeExpr] }
+	protected ShapeEachOf parseShapeEachOf (Map map) {
 		List shapeExprs = (List) (map.get("shapeExprs"));
 		List<ShapeExpr> subExpressions = parseListOfShapeExprs(shapeExprs);
-		ShapeExpr res = new ShapeOr(subExpressions);
+		ShapeEachOf res = new ShapeEachOf(subExpressions);
+		setShapeId(res, map);
+		return res;
+	}
+
+	// ShapeOr 	{ 	id:Label? shapeExprs:[shapeExpr] }
+	protected ShapeOr parseShapeOr (Map map) {
+		List shapeExprs = (List) (map.get("shapeExprs"));
+		List<ShapeExpr> subExpressions = parseListOfShapeExprs(shapeExprs);
+		ShapeOr res = new ShapeOr(subExpressions);
 		setShapeId(res, map);
 		return res;
 	}
 
 	// ShapeAnd 	{ 	id:Label? shapeExprs:[shapeExpr] }
-	protected ShapeExpr parseShapeAnd (Map map) {
+	protected ShapeAnd parseShapeAnd (Map map) {
 		List shapeExprs = (List) (map.get("shapeExprs"));
 		List<ShapeExpr> subExpressions = parseListOfShapeExprs(shapeExprs);
-		ShapeExpr res = new ShapeAnd(subExpressions);
+		ShapeAnd res = new ShapeAnd(subExpressions);
 		setShapeId(res, map);
 		return res;
 	}
 
 	// ShapeNot 	{ 	id:Label? shapeExpr:shapeExpr }
-	protected ShapeExpr parseShapeNot (Map map) {
+	protected ShapeNot parseShapeNot (Map map) {
 		Map shapeExpr = (Map) map.get("shapeExpr");
 		ShapeExpr subExpr = parseShapeExpression(shapeExpr);
-		ShapeExpr res = new ShapeNot(subExpr);
+		ShapeNot res = new ShapeNot(subExpr);
 		setShapeId(res, map);
 		return res;
 	}
@@ -238,7 +251,7 @@ public class ShExJParser implements Parser{
 	}
 
 	// Shape 	{ 	id:Label? closed:BOOL? extra:[IRI]? expression:tripleExpr? semActs:[SemAct]? }
-	protected ShapeExpr parseShape(Map map) {
+	protected Shape parseShape(Map map) {
 		// TODO not used and not supported
 		Object semActs = getSemActs(map);
 			

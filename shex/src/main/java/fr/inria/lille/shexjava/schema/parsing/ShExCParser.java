@@ -57,6 +57,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeEachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
@@ -84,9 +85,15 @@ import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExCErrorStrategy;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocBaseVisitor;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocLexer;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser;
+import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAndContext;
+import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeEachOfContext;
+import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeNotContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.IriExclusionContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.NumericFacetContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.QualifierContext;
+import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeAndContext;
+import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeEachOfContext;
+import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeNotContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.StringFacetContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.XsFacetContext;
 import fr.inria.lille.shexjava.util.DatatypeUtil;
@@ -217,22 +224,68 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return visitShapeOr(ctx.shapeOr()); 
 	}
 	
+	@Override 	
 	public ShapeExpr visitShapeOr(ShExDocParser.ShapeOrContext ctx) { 
 		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
-		for (ParseTree child:ctx.children) {
-			if (child instanceof ShExDocParser.ShapeAndContext)
-				children.add((ShapeExpr) child.accept(this));
+		for ( ShapeEachOfContext child:ctx.shapeEachOf()) {
+			children.add(visitShapeEachOf(child));
 		}
 		if (children.size()==1)
 			return children.get(0);
 		return new ShapeOr(children); 
 	}
 	
+	@Override 
+	public ShapeExpr visitInlineShapeOr(ShExDocParser.InlineShapeOrContext ctx) { 
+		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
+		for (InlineShapeEachOfContext child:ctx.inlineShapeEachOf()) {
+			children.add(visitInlineShapeEachOf(child));
+		}
+		if (children.size()==1)
+			return children.get(0);
+		return new ShapeOr(children); 
+	}
+	
+	@Override 
+	public ShapeExpr visitShapeEachOf(ShExDocParser.ShapeEachOfContext ctx) { 
+		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
+		for ( ShapeAndContext child:ctx.shapeAnd()) {
+			children.add(visitShapeAnd(child));
+		}
+		if (children.size()==1)
+			return children.get(0);
+		return new ShapeEachOf(children); 
+	}
+	
+
+	@Override 
+	public ShapeExpr visitInlineShapeEachOf(ShExDocParser.InlineShapeEachOfContext ctx) { 
+		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
+		for ( InlineShapeAndContext child:ctx.inlineShapeAnd()) {
+			children.add(visitInlineShapeAnd(child));
+		}
+		if (children.size()==1)
+			return children.get(0);
+		return new ShapeEachOf(children); 
+	}
+	
+
+	
 	public ShapeExpr visitShapeAnd(ShExDocParser.ShapeAndContext ctx) { 
 		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
-		for (ParseTree child:ctx.children) {
-			if (child instanceof ShExDocParser.ShapeNotContext)
-				children.add((ShapeExpr) child.accept(this));
+		for (ShapeNotContext child:ctx.shapeNot()) {
+			children.add(visitShapeNot(child));
+		}
+		if (children.size()==1)
+			return children.get(0);
+		return new ShapeAnd(children); 
+	}
+	
+	@Override 
+	public ShapeExpr visitInlineShapeAnd(ShExDocParser.InlineShapeAndContext ctx) { 
+		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
+		for (InlineShapeNotContext child:ctx.inlineShapeNot()) {
+			children.add(visitInlineShapeNot(child));
 		}
 		if (children.size()==1)
 			return children.get(0);
@@ -245,30 +298,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		}
 		ShapeExpr result = new ShapeNot((ShapeExpr) ctx.shapeAtom().accept(this)); 
 		return result;
-	}
-
-	@Override 
-	public ShapeExpr visitInlineShapeOr(ShExDocParser.InlineShapeOrContext ctx) { 
-		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
-		for (ParseTree child:ctx.children) {
-			if (child instanceof ShExDocParser.InlineShapeAndContext)
-				children.add((ShapeExpr) child.accept(this));
-		}
-		if (children.size()==1)
-			return children.get(0);
-		return new ShapeOr(children); 
-	}
-
-	@Override 
-	public ShapeExpr visitInlineShapeAnd(ShExDocParser.InlineShapeAndContext ctx) { 
-		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
-		for (ParseTree child:ctx.children) {
-			if (child instanceof ShExDocParser.InlineShapeNotContext)
-				children.add((ShapeExpr) child.accept(this));
-		}
-		if (children.size()==1)
-			return children.get(0);
-		return new ShapeAnd(children); 
 	}
 
 

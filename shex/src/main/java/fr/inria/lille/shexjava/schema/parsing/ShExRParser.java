@@ -59,6 +59,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeEachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
@@ -223,6 +224,7 @@ public class ShExRParser implements Parser {
 	private ShapeExpr parseShapeExpr(RDFTerm value) {
 		IRI SHAPE = rdfFactory.createIRI("http://www.w3.org/ns/shex#Shape");
 		IRI SHAPE_AND = rdfFactory.createIRI("http://www.w3.org/ns/shex#ShapeAnd");
+		IRI SHAPE_EOF = rdfFactory.createIRI("http://www.w3.org/ns/shex#ShapeEachOf");
 		IRI SHAPE_OR = rdfFactory.createIRI("http://www.w3.org/ns/shex#ShapeOr");
 		IRI SHAPE_NOT = rdfFactory.createIRI("http://www.w3.org/ns/shex#ShapeNot");
 		IRI NODE_CONSTRAINT = rdfFactory.createIRI("http://www.w3.org/ns/shex#NodeConstraint");
@@ -237,6 +239,8 @@ public class ShExRParser implements Parser {
 		RDFTerm type = (RDFTerm) triples.get(0).getObject();
 		
 		shapeSeen.add(value);
+		if (type.equals(SHAPE_EOF))
+			return parseShapeEachOf(value);
 		if (type.equals(SHAPE_AND))
 			return parseShapeAnd(value);
 		if (type.equals(SHAPE_OR))
@@ -250,6 +254,20 @@ public class ShExRParser implements Parser {
 		
 		System.err.println("Unknown shape type: "+type);
 		return null;
+	}
+	
+	
+	private ShapeExpr parseShapeEachOf(RDFTerm value) {
+		IRI SHAPE_EXPRS = rdfFactory.createIRI("http://www.w3.org/ns/shex#shapeExprs");
+		RDFTerm val = getObjects(value,SHAPE_EXPRS).get(0);
+
+		List<ShapeExpr> subExpr = new ArrayList<ShapeExpr>();
+		for (Object obj:computeListOfObject(val))
+			subExpr.add(parseShapeExpr((RDFTerm) obj));
+		
+		ShapeExpr res = new ShapeEachOf(subExpr);
+		setLabel(res,value);		
+		return res;
 	}
 	
 	

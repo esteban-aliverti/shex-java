@@ -96,6 +96,18 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInlineShapeOr(ShExDocParser.InlineShapeOrContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#shapeEachOf}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeEachOf(ShExDocParser.ShapeEachOfContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#inlineShapeEachOf}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInlineShapeEachOf(ShExDocParser.InlineShapeEachOfContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#shapeAnd}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

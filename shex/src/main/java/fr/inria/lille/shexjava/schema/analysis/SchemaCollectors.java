@@ -29,6 +29,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeEachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
@@ -176,6 +177,13 @@ class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 		if (filter.test(expr))
 			set.add((C)expr);
 		super.visitShapeOr(expr, arguments);
+	}
+	
+	@Override
+	public void visitShapeEachOf(ShapeEachOf expr, Object... arguments) {
+		if (filter.test(expr))
+			set.add((C)expr);
+		super.visitShapeEachOf(expr, arguments);
 	}
 
 	@Override

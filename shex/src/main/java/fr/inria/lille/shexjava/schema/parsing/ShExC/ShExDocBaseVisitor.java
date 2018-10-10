@@ -116,6 +116,20 @@ public class ShExDocBaseVisitor<T> extends AbstractParseTreeVisitor<T> implement
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitShapeEachOf(ShExDocParser.ShapeEachOfContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitInlineShapeEachOf(ShExDocParser.InlineShapeEachOfContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitShapeAnd(ShExDocParser.ShapeAndContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

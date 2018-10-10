@@ -29,6 +29,7 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeEachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
@@ -99,6 +100,12 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		public Boolean getResult() {
 			if (result == null) return false;
 			return result;
+		}
+		
+		//TODO: ShapeEachOf implements
+		@Override
+		public void visitShapeEachOf(ShapeEachOf expr, Object... arguments) {
+			
 		}
 		
 		@Override

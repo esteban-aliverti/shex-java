@@ -47,6 +47,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeEachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
@@ -394,6 +395,14 @@ public class ShexSchema {
 		}
 		
 		@Override
+		public void visitShapeEachOf(ShapeEachOf expr, Object... arguments) {
+			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
+			}
+			super.visitShapeEachOf(expr, arguments);
+		}
+		
+		@Override
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 			for (ShapeExpr subExpr: expr.getSubExpressions()) {
 				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
@@ -566,13 +575,22 @@ public class ShexSchema {
 		
 		@Override
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
-			this.visited.add(expr.getId());
-			
+			this.visited.add(expr.getId());	
 			for (ShapeExpr subExpr: expr.getSubExpressions()) {
 				Pair<Label,Label> edge =new Pair<Label,Label>(expr.getId(),subExpr.getId());
 				set.add(new Pair<Pair<Label,Label>,Integer>(edge,1));
 			}
 			super.visitShapeAnd(expr, arguments);
+		}
+		
+		@Override
+		public void visitShapeEachOf(ShapeEachOf expr, Object... arguments) {
+			this.visited.add(expr.getId());
+			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+				Pair<Label,Label> edge =new Pair<Label,Label>(expr.getId(),subExpr.getId());
+				set.add(new Pair<Pair<Label,Label>,Integer>(edge,1));
+			}
+			super.visitShapeEachOf(expr, arguments);
 		}
 		
 		@Override
