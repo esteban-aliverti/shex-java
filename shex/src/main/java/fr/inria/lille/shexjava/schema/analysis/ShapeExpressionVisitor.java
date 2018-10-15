@@ -48,7 +48,7 @@ public abstract class ShapeExpressionVisitor<ResultType> {
 		}
 	}
 	
-	public void visitShapeEachOf(ShapeEachOf expr, Object[] arguments) {
+	public void visitShapeEachOf(ShapeEachOf expr, Object... arguments) {
 		for (ShapeExpr subExpr: expr.getSubExpressions()) {
 			subExpr.accept(this, arguments);
 		}

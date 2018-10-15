@@ -21,10 +21,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
@@ -158,14 +160,20 @@ public class RefineValidation extends SORBEBasedValidation {
 	/** Tests whether the node's neighbourhood matches the shape with the current typing */
 	private boolean matches (RDFTerm node, Shape shape) {
 		return null != this.findMatching(node, shape, this.getTyping()).getMatching();
-	}	
+	}
+	
+	/** Tests whether the node's neighbourhood matches the shape with the current typing */
+	private boolean matches (RDFTerm node, Shape shape, List<Triple> selectedNeighbourhood) {
+		return null != this.findMatching(node, shape, this.getTyping(), selectedNeighbourhood).getMatching();
+	}
 	
 	private EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor();
 		
 	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {		
 		private RDFTerm node; 
 		private Boolean result;
-	
+		private List<Triple> selectedNeighbourhood = null;
+		
 		void setNode (RDFTerm node) {
 			this.node = node;
 		}
@@ -183,13 +191,30 @@ public class RefineValidation extends SORBEBasedValidation {
 				if (!result) break;
 			}
 		}
-
-		//TODO: ShapeEachOf implements
+		
 		@Override
 		public void visitShapeEachOf(ShapeEachOf expr, Object... arguments) {
-			
+			EachOfIterator eachOfIterator = new EachOfIterator(expr,node,graph);
+
+			while(eachOfIterator.hasNext()){
+				Map<ShapeExpr,List<Triple>> options = eachOfIterator.next();
+				boolean test = true;
+				Iterator<ShapeExpr> iteSub = expr.getSubExpressions().iterator();
+				while (test && iteSub.hasNext()) {
+					ShapeExpr sub = iteSub.next();
+					selectedNeighbourhood = options.get(sub);
+					sub.accept(this);
+					test = test && getResult();
+				}
+				if (test){
+					result = true;
+					return;
+				}
+
+			}
+			result = false;
 		}
-		
+
 		@Override
 		public void visitShapeOr(ShapeOr expr, Object... arguments) {
 			for (ShapeExpr e : expr.getSubExpressions()) {
@@ -206,7 +231,10 @@ public class RefineValidation extends SORBEBasedValidation {
 		
 		@Override
 		public void visitShape(Shape expr, Object... arguments) {
-			result = matches(node, expr);
+			if (selectedNeighbourhood!=null)
+				result = matches(node,expr,selectedNeighbourhood);
+			else
+				result = matches(node, expr);
 		}
 
 		@Override

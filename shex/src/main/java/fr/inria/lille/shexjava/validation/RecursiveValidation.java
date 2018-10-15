@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -91,7 +92,8 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {
 		private RDFTerm node; 
 		private Boolean result;
-		
+		private List<Triple> selectedNeighbourhood = null;
+	
 		public EvaluateShapeExpressionVisitor(RDFTerm one) {
 			this.node = one;
 		}
@@ -102,10 +104,27 @@ public class RecursiveValidation extends SORBEBasedValidation {
 			return result;
 		}
 		
-		//TODO: ShapeEachOf implements
 		@Override
 		public void visitShapeEachOf(ShapeEachOf expr, Object... arguments) {
-			
+			EachOfIterator eachOfIterator = new EachOfIterator(expr,node,graph);
+
+			while(eachOfIterator.hasNext()){
+				Map<ShapeExpr,List<Triple>> options = eachOfIterator.next();
+				boolean test = true;
+				Iterator<ShapeExpr> iteSub = expr.getSubExpressions().iterator();
+				while (test && iteSub.hasNext()) {
+					ShapeExpr sub = iteSub.next();
+					selectedNeighbourhood = options.get(sub);
+					sub.accept(this);
+					test = test && getResult();
+				}
+				if (test){
+					result = true;
+					return;
+				}
+
+			}
+			result = false;
 		}
 		
 		@Override

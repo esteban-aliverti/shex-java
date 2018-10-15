@@ -287,7 +287,7 @@ public class ShExJSerializer {
 			tmp.put("type", "Wildcard");
 			result.put("stem",tmp);
 		}
-		List<Object> exclusions = (List) convertValueSetValueConstraint(cons.getExclusions());
+		List<Object> exclusions = (List<Object>) convertValueSetValueConstraint(cons.getExclusions());
 		if (exclusions.size()>0)
 			result.put("exclusions", exclusions);
 		return result;
