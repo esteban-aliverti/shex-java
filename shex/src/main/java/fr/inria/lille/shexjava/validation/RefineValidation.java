@@ -62,7 +62,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	private TypingForValidation typing;
 
 	
-	// TODO A quoi ça sert ?
+	// TODO A quoi ça sert ?: Only the selected shapes are going to appears in the typing
 	private Set<Label> selectedShapes;
 	private Set<Label> extraShapes;
 	
@@ -255,7 +255,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	private List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum, RDFTerm focusNode) {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
-		Set<Label> labels = schema.getStratification().get(stratum); // TODO does it mean that all the labels, even those of the triple constraints, have a stratum ?
+		Set<Label> labels = schema.getStratification().get(stratum); // TODO does it mean that all the labels, even those of the triple constraints, have a stratum ? No, only the label of shape expressions are selected
 		// TODO According to the spec, the stratification is a set of Shape
 		// TODO why to we need to add the triple constraints to the selected shapes ? Can't we simply implement the abstract algorithm ?
 		for (Label label: labels) {
